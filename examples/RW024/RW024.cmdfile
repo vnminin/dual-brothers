@@ -1,0 +1,14 @@
+length: 2100000
+burnin: 100000
+subsample: 200
+window_length: 5
+par_lambda: 1
+top_lambda: 0.693
+sigma_alpha: 0.75
+subst_hyper_mean: 2.0
+subst_hyper_variance: 1.0
+diver_hyper_mean: -2.0
+diver_hyper_variance: 2.0 
+sigma_mu: 0.75
+C: 0.25
+start_tree: (0,(((((((1,3),4),2),7),5),6),8))

@@ -1,0 +1,10 @@
+length: 2100000
+burnin: 100000
+subsample: 200
+window_length: 5
+par_lambda: 10
+top_lambda: 0.693
+sigma_alpha: 0.75
+sigma_mu: 0.75
+C: 0.35
+start_tree: (0,(1,(2,3)))
