@@ -122,6 +122,29 @@ public class Settings  implements Serializable {
 
     public boolean tree_file_present;
 
+    /*
+     * checkpointing settings (AED 11/19/2005)
+     * the checkpoint file stores a serialized instance of the DCPSampler class
+     */
+    
+    /*
+     * checkpoint after this many generations
+     * negative values disable checkpointing
+     */
+    public int checkpoint_frequency = -1;
+    /*
+     * checkpoint file name
+     */
+    public String checkpoint_filename;
+    /*
+     * the sampler will exit after taking this many samples
+     * this feature is useful when running in a condor high throughput
+     * computing environment where long running jobs tend to get killed
+     * each run can perform part of the total samples and checkpoint itself
+     * subsequent runs can restart from the checkpoint
+     * Defaults to -1 (no limit)
+     */
+    public long max_samples_per_execution = -1;
 
     /**
      * temporary integer to hold indicators
@@ -232,6 +255,15 @@ public class Settings  implements Serializable {
 	    System.exit(-1);
 	}
 
+	// check if checkpointing options were specified correctly
+	if(checkpoint_frequency > 0 && max_samples_per_execution > 0 &&
+			max_samples_per_execution % checkpoint_frequency != 0)
+	{
+	    PrintOptions();
+		System.err.println("\n\nERROR! max_samples_per_execution must be a multiple of checkpoint_frequency\n");
+	    System.exit(-1);
+	}
+		
 
 	GenerateDistributions();
 
@@ -481,6 +513,14 @@ public class Settings  implements Serializable {
 			par_breaks = true;
 		    }
 		    
+		} else if( cmd.compareTo("checkpoint_frequency:") == 0 ) {
+			checkpoint_frequency = Integer.parseInt(option);
+
+		} else if( cmd.compareTo("checkpoint_file:") == 0 ) {
+			checkpoint_filename = option;
+
+		} else if( cmd.compareTo("max_samples_per_execution:") == 0 ) {
+			max_samples_per_execution = Long.parseLong(option);
 
 		} else { 
 		    PrintOptions();
@@ -520,6 +560,9 @@ public class Settings  implements Serializable {
 	System.err.println("tree_file: file name with trees in Newick format");
 	System.err.println("top_breaks: 1 = update, 0 = do not update (default: 1)");
 	System.err.println("par_breaks: 1 = update, 0 = do not update (default: 1)");
+	System.err.println("checkpoint_frequency: int >= -1");
+	System.err.println("checkpoint_file: file name where checkpoints will be stored");
+	System.err.println("max_samples_per_execution: the sampler will exit after completing this many samples");
 
 	System.err.println("\nCAUTION: You must supply either \"start_tree\" or \"tree_file\" but NOT BOTH\n");
 
