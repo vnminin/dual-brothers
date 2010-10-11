@@ -1,9 +1,10 @@
+import java.io.Serializable;
 import java.util.*;
 
 /**
 * Generates the sufficient statistics of the observed data.
 */
-public class CountStatistic {
+public class CountStatistic  implements Serializable{
 	public int lenseq;
 	public int lenunique;
 	public int ntaxa;

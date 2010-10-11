@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.*;
 
-public class Node //extends Object implements Cloneable
+public class Node  implements Serializable //extends Object implements Cloneable
 {
 
 	//static PrintfFormatString pfs1 = new PrintfFormatString("%d:%.6f");

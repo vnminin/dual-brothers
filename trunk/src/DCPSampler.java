@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+
 import corejava.*;
 
 
@@ -8,7 +9,7 @@ import corejava.*;
 * (topology break-points and evolutionary change-points)
 */
 
-public class DCPSampler extends Sampler{
+public class DCPSampler extends Sampler  implements Serializable {
 
     /**
      * List of current partitions/segments
