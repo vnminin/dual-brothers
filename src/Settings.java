@@ -6,7 +6,7 @@ import java.util.*;
 /**
 * Reads in configuration file and initializes pseudo-random number generators.
 */
-public class Settings {
+public class Settings  implements Serializable {
 
     /**
      * number of MCMC iterations

@@ -1,9 +1,11 @@
+import java.io.Serializable;
+
 /**
 * Class BreakPoint marks points as topology break-points, evolutionary  
 * change-points or both
 */
 
-public class BreakPoint {
+public class BreakPoint implements Serializable {
 
     /**
      * position of a change-point

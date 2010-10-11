@@ -8,7 +8,7 @@ import corejava.*;
 * for parameters of dual Multiple Change-Point model
 */
 
-public class Priors implements PriorConst{
+public class Priors implements PriorConst, Serializable {
 
     /**
      * prior probability of recombination locations

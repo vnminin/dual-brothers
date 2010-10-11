@@ -6,7 +6,7 @@ import java.io.*;
 * in a multiple change point model
 */
 
-public class Partition {
+public class Partition  implements Serializable {
 
     /**
      * left end-point of a partition/segment - CHANGE-POINT

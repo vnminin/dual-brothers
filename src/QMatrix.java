@@ -1,10 +1,12 @@
+import java.io.Serializable;
+
 import cern.jet.random.*;
 
 /**
 * Generic evolutionary matrix.
 *
 */
-public abstract class QMatrix {
+public abstract class QMatrix  implements Serializable {
 
 	/**
 	* Evolutionary parameters.

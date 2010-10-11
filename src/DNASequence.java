@@ -4,7 +4,7 @@ import java.io.*;
 /**
 * Input and output operations for nucleotide sequences.
 */
-public class DNASequence extends Object {
+public class DNASequence extends Object  implements Serializable {
 	// All indices for nucleotide-types are array[4], where:
 	//		0 = A
 	//		1 = G
