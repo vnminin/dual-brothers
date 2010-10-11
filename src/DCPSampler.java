@@ -191,7 +191,7 @@ public class DCPSampler extends Sampler  implements Serializable {
     /**
      * Possible trees.
      */
-    protected Tree[] PostTree = null;
+    transient protected Tree[] PostTree = null;
 
 
     /**
@@ -203,7 +203,7 @@ public class DCPSampler extends Sampler  implements Serializable {
     /**
      * Results file.
      */
-    protected PrintWriter output;
+    transient protected PrintWriter output;
 
     /**
      * Priors
@@ -387,6 +387,25 @@ public class DCPSampler extends Sampler  implements Serializable {
 	C = set.C;
     }
 
+    /*
+     * Initializes transient variables that were not checkpointed
+     */
+    public void resumeState(PrintWriter ioutput)
+    {
+    	output = ioutput;
+        topology = new TopUpdate(this);
+        parameter = new ParUpdate(this);
+        parameter_change_points = new ParChangeUpdate(this);
+        parameter_dim_change = new ParDimChange(this);
+        hierarchical_parameters = new Hierarchy(this);
+        delimiter = new String("\t");
+        fmtN     = new Format(" %2d");
+        fmtLogD  = new Format(" %10.2f");
+        fmtProp  = new Format(" %.4f");
+        fmtD     = new Format(" %7.4f");
+        fmtDBig  = new Format(" %8.3f");
+        SetPostTree();
+    }
 
     /**
      * Forms tree space either from starting tree by removing the last taxon 
@@ -524,14 +543,14 @@ public class DCPSampler extends Sampler  implements Serializable {
     
 
 
-    String delimiter = new String("\t");
-    static Format fmtIter  = new Format("%-6d");
-    Format fmtN     = new Format(" %2d");
-    Format fmtLogD  = new Format(" %10.2f");
-    Format fmtProp  = new Format(" %.4f");
-    Format fmtD     = new Format(" %7.4f");
-    Format fmtDBig  = new Format(" %8.3f");
-    static Format fmtDE	   = new Format(" %12.4E");
+    transient String delimiter = new String("\t");
+    transient static Format fmtIter  = new Format("%-6d");
+    transient Format fmtN     = new Format(" %2d");
+    transient Format fmtLogD  = new Format(" %10.2f");
+    transient Format fmtProp  = new Format(" %.4f");
+    transient Format fmtD     = new Format(" %7.4f");
+    transient Format fmtDBig  = new Format(" %8.3f");
+    transient static Format fmtDE	   = new Format(" %12.4E");
     
     
     protected StringBuffer OutputLine() {
@@ -569,17 +588,26 @@ public class DCPSampler extends Sampler  implements Serializable {
     
     /**
      * Saves estimates of a MCMC update step
-     * also checks if the number of steps exceeds 
-     * user defined chain length and exits the program
-     * when it happens. At the end outputs date and
-     * acceptance rates of M-H steps.
      **/
 
     public final void saveEstimates() {
-	output.println(OutputLine());
-	output.flush(); //May speed up output to remove this line.
-	// Test to see if we are finished with this chain
-	if( JumpNumber >= set.length ) {
+		output.println(OutputLine());
+		output.flush(); //May speed up output to remove this line.
+    }
+
+    /*
+     * Test to see if we are finished with this chain, if so then exit
+     * checks if the number of steps exceeds 
+     * user defined chain length and exits the program
+     * when it happens. At the end outputs date and
+     * acceptance rates of M-H steps.
+     */
+    public final void checkTerminationCondition()
+    {
+    	if( JumpNumber >= set.length || 
+    			(set.max_samples_per_execution > 0 && 
+    					JumpNumber % set.max_samples_per_execution == 0)) 
+    	{
 	    Date now = new Date();
 	    System.out.println("# Finished @ "+now);
 	    for(int i = 0; i < acceptancerate.length; i++ ) {
@@ -597,14 +625,14 @@ public class DCPSampler extends Sampler  implements Serializable {
     
 
 
-    TopUpdate topology = new TopUpdate(this);
-    ParUpdate parameter = new ParUpdate(this);
-    ParChangeUpdate parameter_change_points = new ParChangeUpdate(this);
-    ParDimChange parameter_dim_change = new ParDimChange(this);
-    Hierarchy hierarchical_parameters = new Hierarchy(this);
+    transient TopUpdate topology = new TopUpdate(this);
+    transient ParUpdate parameter = new ParUpdate(this);
+    transient ParChangeUpdate parameter_change_points = new ParChangeUpdate(this);
+    transient ParDimChange parameter_dim_change = new ParDimChange(this);
+    transient Hierarchy hierarchical_parameters = new Hierarchy(this);
     
-    TopChangeUpdate topology_change_points;
-    TopDimChange topology_dim_change;
+    transient TopChangeUpdate topology_change_points;
+    transient TopDimChange topology_dim_change;
     
 
     /** Runs the sampler
@@ -612,7 +640,8 @@ public class DCPSampler extends Sampler  implements Serializable {
      */
     
     public void run() {
-	int sincePrint = 0;
+	int sincePrint = JumpNumber % set.subsample;
+	int sinceCkpnt = JumpNumber % set.checkpoint_frequency;
 	double alpha;
 	if (TreeSpan ==2){
 	    alpha = 0.5;
@@ -755,6 +784,28 @@ public class DCPSampler extends Sampler  implements Serializable {
 		   
 		}
  	    }
+	    sinceCkpnt++;
+	    if( sinceCkpnt == set.checkpoint_frequency ||
+	    		JumpNumber >= set.length )
+	    {
+	    	sinceCkpnt = 0;
+	    	System.out.println("Checkpointing...");
+	    	try
+	    	{
+	    	FileOutputStream fos = new FileOutputStream(set.checkpoint_filename, false);
+	    	ObjectOutputStream oos = new ObjectOutputStream(fos);
+	    	oos.writeObject(this);
+	    	}catch(FileNotFoundException fnfe)
+	    	{
+	    		fnfe.printStackTrace();
+	    	}catch(IOException ioe)
+	    	{
+	    		ioe.printStackTrace();
+	    		System.err.println("Error writing checkpoint");
+	    	}
+	    }
+	    // terminate after writing a final checkpoint
+	    checkTerminationCondition();
 	    
  	}
 
