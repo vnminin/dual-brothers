@@ -1,0 +1,1 @@
+DualBrothers is a recombination detection software based on the dual Multiple Change-Point (MCP) model. This model allows for changes in topology and evolutionary rates across sites in a multiple sequence alignment. We use a Bayesian approach together with MCMC sampling to simulate from the posterior distribution of the dual MCP model parameters.
